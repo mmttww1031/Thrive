@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thrive 2.0: Your Daily Three</title>
+    
+    <!-- Using a CDN for icons. -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        /* --- General Setup & Typography --- */
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
+        /* --- Color Themes & Variables (Matched to Image) --- */
+        :root {
+            --primary-color: #6366F1; /* Soft Indigo */
+            --primary-light: #EEF2FF;
+            --accent-color: #F59E0B;  /* Amber */
+            
+            --bg-color: #F9FAFB;
+            --surface-color: #FFFFFF;
+            --text-color: #1F2937;
+            --text-muted-color: #6B7280;
+            --border-color: #E5E7EB;
+
+            --border-radius: 16px;
+            --transition-speed: 0.3s;
+        }
+
+        body.dark-theme {
+            --primary-color: #818CF8;
+            --primary-light: #4338CA; /* Darker Indigo for active nav */
+            --accent-color: #FBBF24;
+            
+            --bg-color: #111827;
+            --surface-color: #1F2937;
+            --text-color: #F9FAFB;
+            --text-muted-color: #9CA3AF;
+            --border-color: #374151;
+        }
+
+        /* --- Base & Reset --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+        }
+
+        /* --- Main App Container --- */
+        #app-container {
+            width: 100%;
+            max-width: 420px;
+            background-color: var(--surface-color);
+            border-radius: 24px; /* Slightly more rounded */
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: background-color var(--transition-speed) ease;
+        }
+        
+        .main-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+        }
+
+        /* --- Header --- */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 1.5rem 0 1.5rem;
+        }
+
+        .app-header h1 {
+            font-size: 1.75rem; /* Slightly larger title */
+            font-weight: 700;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .streak-counter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+        .streak-counter.zero {
+            color: var(--text-muted-color);
+        }
+
+        .theme-toggle-btn {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--text-muted-color);
+            transition: color 0.2s ease, transform 0.3s ease;
+        }
+        .theme-toggle-btn:hover {
+            color: var(--text-color);
+            transform: scale(1.1) rotate(15deg);
+        }
+
+        /* --- View Management & Transitions --- */
+        .view {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Today View Specifics --- */
+        #today-date {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--text-muted-color);
+        }
+
+        .task-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background-color: var(--bg-color);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            transition: all var(--transition-speed) ease-in-out;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: slideUpFadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes slideUpFadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .task-checkbox {
+            width: 24px; height: 24px; border: 2px solid var(--border-color); border-radius: 50%; cursor: pointer; flex-shrink: 0; display: flex; justify-content: center; align-items: center; transition: all 0.2s ease;
+        }
+        .task-input { width: 100%; border: none; background: none; font-size: 1rem; font-family: 'Nunito', sans-serif; color: var(--text-color); transition: color 0.2s ease; }
+        .task-input:focus { outline: none; }
+        .task-input::placeholder { color: var(--text-muted-color); }
+        .task-item.completed { background-color: var(--primary-light); }
+        .task-item.completed .task-checkbox { background-color: var(--primary-color); border-color: var(--primary-color); color: white; transform: scale(1.1); }
+        .task-item.completed .task-input { color: var(--text-muted-color); position: relative; }
+        .task-item.completed .task-input::after { content: ''; position: absolute; left: 0; top: 50%; height: 2px; width: 100%; background: var(--text-muted-color); transform-origin: left; animation: strike-through 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        @keyframes strike-through { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        #completion-message, #quote-display { text-align: center; margin-top: 1.5rem; padding: 1rem; border-radius: var(--border-radius); font-weight: 700; }
+        #completion-message { background-color: var(--primary-light); color: var(--primary-color); display: none; }
+        #quote-display { background-color: var(--bg-color); color: var(--text-muted-color); font-weight: 400; font-style: italic; }
+
+        /* --- Calendar View --- */
+        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .calendar-nav button { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-color); }
+        #month-year-display { font-size: 1.2rem; font-weight: 700; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; }
+        .calendar-day, .calendar-header-day { display: flex; justify-content: center; align-items: center; aspect-ratio: 1 / 1; font-size: 0.9rem; }
+        .calendar-header-day { font-weight: 700; color: var(--text-muted-color); }
+        .calendar-day { border-radius: 50%; cursor: default; }
+        .calendar-day.other-month { opacity: 0.3; }
+        .calendar-day.current-day { border: 2px solid var(--primary-color); }
+        .calendar-day.completed { background-color: var(--primary-color); color: white; font-weight: 700; }
+
+        /* --- Stats View --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem; /* Add margin to space from header */
+        }
+
+        .stat-card {
+            background-color: var(--bg-color);
+            padding: 1.25rem 1rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .stat-card .value .small { font-size: 1.75rem; }
+        .stat-card .label {
+            font-size: 0.9rem;
+            color: var(--text-muted-color);
+            margin-top: 0.25rem;
+        }
+        
+        /* --- Footer Navigation --- */
+        .app-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem; /* More padding in nav bar */
+            background-color: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            width: 55px;
+            height: 45px;
+            border-radius: var(--border-radius);
+            color: var(--text-muted-color);
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .nav-btn.active {
+            color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <header class="app-header">
+            <h1 id="header-title">Thrive</h1>
+            <div class="header-controls">
+                <div id="streak-counter" class="streak-counter zero">
+                    <i class="fa-solid fa-fire"></i>
+                    <span id="streak-number">0</span>
+                </div>
+                <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Today View -->
+            <div id="today-view" class="view active">
+                <h2 id="today-date"></h2>
+                <ul class="task-list" id="task-list"></ul>
+                <div id="completion-message">🎉 Day Complete! Your streak is safe.</div>
+                <div id="quote-display"></div>
+            </div>
+
+            <!-- Calendar View -->
+            <div id="calendar-view" class="view">
+                <div class="calendar-nav">
+                    <button id="prev-month-btn" aria-label="Previous Month"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span id="month-year-display"></span>
+                    <button id="next-month-btn" aria-label="Next Month"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-header-day">S</div><div class="calendar-header-day">M</div><div class="calendar-header-day">T</div><div class="calendar-header-day">W</div><div class="calendar-header-day">T</div><div class="calendar-header-day">F</div><div class="calendar-header-day">S</div>
+                </div>
+                <div class="calendar-grid" id="calendar-body"></div>
+            </div>
+
+            <!-- Stats View -->
+            <div id="stats-view" class="view">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" id="stats-current-streak">0</div>
+                        <div class="label">Current Streak</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="stats-longest-streak">0</div>
+                        <div class="label">Longest Streak</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="stats-total-days">0</div>
+                        <div class="label">Days Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value"><span id="stats-task-completion">0</span><span class="small">%</span></div>
+                        <div class="label">Task Completion</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <nav class="app-nav">
+            <button id="nav-today" class="nav-btn active" aria-label="Today's Tasks"><i class="fa-solid fa-list-check"></i></button>
+            <button id="nav-calendar" class="nav-btn" aria-label="Calendar History"><i class="fa-solid fa-calendar-days"></i></button>
+            <button id="nav-stats" class="nav-btn" aria-label="Statistics"><i class="fa-solid fa-chart-pie"></i></button>
+        </nav>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const views = {
+                today: document.getElementById('today-view'),
+                calendar: document.getElementById('calendar-view'),
+                stats: document.getElementById('stats-view'),
+            };
+            const nav = {
+                today: document.getElementById('nav-today'),
+                calendar: document.getElementById('nav-calendar'),
+                stats: document.getElementById('nav-stats'),
+            };
+
+            const headerTitle = document.getElementById('header-title');
+            const todayDateEl = document.getElementById('today-date');
+            const taskListEl = document.getElementById('task-list');
+            const completionMessageEl = document.getElementById('completion-message');
+            const quoteDisplayEl = document.getElementById('quote-display');
+            
+            const streakNumberEl = document.getElementById('streak-number');
+            const streakCounterEl = document.getElementById('streak-counter');
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const themeIcon = themeToggleBtn.querySelector('i');
+            
+            const monthYearDisplay = document.getElementById('month-year-display');
+            const calendarBody = document.getElementById('calendar-body');
+            const prevMonthBtn = document.getElementById('prev-month-btn');
+            const nextMonthBtn = document.getElementById('next-month-btn');
+
+            const statsCurrentStreak = document.getElementById('stats-current-streak');
+            const statsLongestStreak = document.getElementById('stats-longest-streak');
+            const statsTotalDays = document.getElementById('stats-total-days');
+            const statsTaskCompletion = document.getElementById('stats-task-completion');
+
+            // --- State Management ---
+            let appData = {
+                tasks: [ { text: '', completed: false }, { text: '', completed: false }, { text: '', completed: false } ],
+                completedDays: {},
+                lastOpened: null,
+                firstUseDate: null,
+                longestStreak: 0,
+                theme: 'light',
+                completedTasksEver: 0
+            };
+            let calendarDate = new Date();
+            const QUOTES = [
+                "The secret of getting ahead is getting started.", "Well begun is half done.", "The journey of a thousand miles begins with a single step.", "Action is the foundational key to all success.", "Focus on being productive instead of busy.", "The key is not to prioritize what's on your schedule, but to schedule your priorities.", "Do the hard jobs first. The easy jobs will take care of themselves."
+            ];
+
+            // --- Utility Functions ---
+            const getTodayString = (date = new Date()) => date.toISOString().split('T')[0];
+            const saveData = () => localStorage.setItem('thriveApp', JSON.stringify(appData));
+            const loadData = () => {
+                const savedData = localStorage.getItem('thriveApp');
+                if (savedData) appData = JSON.parse(savedData);
+                if (!appData.firstUseDate) appData.firstUseDate = getTodayString();
+                if (appData.completedTasksEver === undefined) appData.completedTasksEver = 0;
+            };
+
+            // --- Core Logic ---
+            function dailyReset() {
+                const todayStr = getTodayString();
+                if (appData.lastOpened !== todayStr) {
+                    appData.tasks = [ { text: '', completed: false }, { text: '', completed: false }, { text: '', completed: false } ];
+                    appData.lastOpened = todayStr;
+                    saveData();
+                }
+            }
+            
+            function updateStreak() {
+                let currentStreak = 0;
+                let today = new Date();
+                let checkDate = new Date(today);
+                
+                if (!appData.completedDays[getTodayString(checkDate)]) {
+                    checkDate.setDate(checkDate.getDate() - 1);
+                }
+
+                while (appData.completedDays[getTodayString(checkDate)]) {
+                    currentStreak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                }
+                
+                streakNumberEl.textContent = currentStreak;
+                streakCounterEl.classList.toggle('zero', currentStreak === 0);
+                appData.longestStreak = Math.max(appData.longestStreak || 0, currentStreak);
+                saveData();
+            }
+
+            function checkAllTasksCompleted() {
+                const allCompleted = appData.tasks.every(task => task.completed);
+                const todayStr = getTodayString();
+                completionMessageEl.style.display = allCompleted ? 'block' : 'none';
+
+                const wasCompleted = !!appData.completedDays[todayStr];
+                if (allCompleted && !wasCompleted) {
+                    appData.completedDays[todayStr] = true;
+                } else if (!allCompleted && wasCompleted) {
+                    delete appData.completedDays[todayStr];
+                }
+                saveData();
+                updateStreak();
+            }
+
+            function applyTheme(theme) {
+                document.body.classList.toggle('dark-theme', theme === 'dark');
+                themeIcon.classList.toggle('fa-moon', theme === 'light');
+                themeIcon.classList.toggle('fa-sun', theme === 'dark');
+                appData.theme = theme;
+                saveData();
+            }
+
+            // --- View & Navigation Logic ---
+            function switchView(viewName) {
+                const viewTitles = { today: "Thrive", calendar: "History", stats: "Statistics" };
+                Object.values(views).forEach(v => v.classList.remove('active'));
+                Object.values(nav).forEach(n => n.classList.remove('active'));
+                
+                views[viewName].classList.add('active');
+                nav[viewName].classList.add('active');
+                headerTitle.textContent = viewTitles[viewName];
+
+                if (viewName === 'calendar') renderCalendar();
+                if (viewName === 'stats') renderStatsView();
+            }
+
+            // --- Rendering ---
+            function renderTodayView() {
+                const today = new Date();
+                todayDateEl.textContent = today.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+
+                taskListEl.innerHTML = '';
+                appData.tasks.forEach((task, index) => {
+                    const taskItem = document.createElement('li');
+                    taskItem.className = 'task-item';
+                    if (task.completed) taskItem.classList.add('completed');
+                    taskItem.style.animationDelay = `${index * 100}ms`;
+
+                    const checkbox = document.createElement('div');
+                    checkbox.className = 'task-checkbox';
+                    if (task.completed) 
