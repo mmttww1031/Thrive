@@ -17,6 +17,8 @@
             --primary-color: #6366F1; /* Soft Indigo */
             --primary-light: #EEF2FF;
             --accent-color: #F59E0B;  /* Amber */
+            --danger-color: #EF4444; /* Red */
+            --danger-light: #FEE2E2;
             
             --bg-color: #F9FAFB;
             --surface-color: #FFFFFF;
@@ -30,8 +32,10 @@
 
         body.dark-theme {
             --primary-color: #818CF8;
-            --primary-light: #4338CA; /* Darker Indigo for active nav */
+            --primary-light: #4338CA;
             --accent-color: #FBBF24;
+            --danger-color: #F87171;
+            --danger-light: #450a0a;
             
             --bg-color: #111827;
             --surface-color: #1F2937;
@@ -64,7 +68,7 @@
             width: 100%;
             max-width: 420px;
             background-color: var(--surface-color);
-            border-radius: 24px; /* Slightly more rounded */
+            border-radius: 24px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
             overflow: hidden;
             display: flex;
@@ -86,7 +90,7 @@
         }
 
         .app-header h1 {
-            font-size: 1.75rem; /* Slightly larger title */
+            font-size: 1.75rem;
             font-weight: 700;
         }
 
@@ -109,65 +113,23 @@
         }
 
         .theme-toggle-btn {
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            cursor: pointer;
-            color: var(--text-muted-color);
-            transition: color 0.2s ease, transform 0.3s ease;
+            background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted-color); transition: color 0.2s ease, transform 0.3s ease;
         }
         .theme-toggle-btn:hover {
             color: var(--text-color);
             transform: scale(1.1) rotate(15deg);
         }
 
-        /* --- View Management & Transitions --- */
-        .view {
-            display: none;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        .view.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* --- View Management --- */
+        .view { display: none; animation: fadeIn 0.5s ease-in-out; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- Today View Specifics --- */
-        #today-date {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            color: var(--text-muted-color);
-        }
-
-        .task-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .task-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background-color: var(--bg-color);
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            transition: all var(--transition-speed) ease-in-out;
-            opacity: 0;
-            transform: translateY(10px);
-            animation: slideUpFadeIn 0.5s ease-out forwards;
-        }
-
-        @keyframes slideUpFadeIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        #today-date { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center; color: var(--text-muted-color); }
+        .task-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+        .task-item { display: flex; align-items: center; gap: 1rem; background-color: var(--bg-color); padding: 1rem; border-radius: var(--border-radius); transition: all var(--transition-speed) ease-in-out; opacity: 0; transform: translateY(10px); animation: slideUpFadeIn 0.5s ease-out forwards; }
+        @keyframes slideUpFadeIn { to { opacity: 1; transform: translateY(0); } }
         .task-checkbox { width: 24px; height: 24px; border: 2px solid var(--border-color); border-radius: 50%; cursor: pointer; flex-shrink: 0; display: flex; justify-content: center; align-items: center; transition: all 0.2s ease; }
         .task-input { width: 100%; border: none; background: none; font-size: 1rem; font-family: 'Nunito', sans-serif; color: var(--text-color); transition: color 0.2s ease; }
         .task-input:focus { outline: none; }
@@ -189,63 +151,46 @@
         .calendar-day, .calendar-header-day { display: flex; justify-content: center; align-items: center; aspect-ratio: 1 / 1; font-size: 0.9rem; }
         .calendar-header-day { font-weight: 700; color: var(--text-muted-color); }
         .calendar-day { border-radius: 50%; cursor: default; }
-        .calendar-day.other-month { opacity: 0.3; }
         .calendar-day.current-day { border: 2px solid var(--primary-color); }
         .calendar-day.completed { background-color: var(--primary-color); color: white; font-weight: 700; }
 
         /* --- Stats View --- */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 1.5rem; /* Add margin to space from header */
-        }
-
-        .stat-card {
-            background-color: var(--bg-color);
-            padding: 1.25rem 1rem;
-            border-radius: var(--border-radius);
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+        .stat-card { background-color: var(--bg-color); padding: 1.25rem 1rem; border-radius: var(--border-radius); text-align: center; }
+        .stat-card .value { font-size: 2.5rem; font-weight: 700; color: var(--primary-color); }
+        .stat-card .value .small { font-size: 1.75rem; }
+        .stat-card .label { font-size: 0.9rem; color: var(--text-muted-color); margin-top: 0.25rem; }
+        
+        /* --- Reset Section --- */
+        .reset-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
             text-align: center;
         }
-        .stat-card .value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-        .stat-card .value .small { font-size: 1.75rem; }
-        .stat-card .label {
-            font-size: 0.9rem;
-            color: var(--text-muted-color);
-            margin-top: 0.25rem;
-        }
-        
-        /* --- Footer Navigation --- */
-        .app-nav {
-            display: flex;
-            justify-content: space-around;
-            padding: 1rem; /* More padding in nav bar */
-            background-color: var(--surface-color);
-            border-top: 1px solid var(--border-color);
-            transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
-        }
-        .nav-btn {
-            background: none;
+        .reset-btn {
+            background-color: var(--danger-light);
             border: none;
-            font-size: 1.25rem;
-            cursor: pointer;
-            width: 55px;
-            height: 45px;
+            color: var(--danger-color);
+            padding: 0.75rem 1.5rem;
             border-radius: var(--border-radius);
-            color: var(--text-muted-color);
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
             transition: all 0.2s ease;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
-        .nav-btn.active {
-            color: var(--primary-color);
-            background-color: var(--primary-light);
+        .reset-btn:hover {
+            background-color: var(--danger-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
         }
+
+        /* --- Footer Navigation --- */
+        .app-nav { display: flex; justify-content: space-around; padding: 1rem; background-color: var(--surface-color); border-top: 1px solid var(--border-color); transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease; }
+        .nav-btn { background: none; border: none; font-size: 1.25rem; cursor: pointer; width: 55px; height: 45px; border-radius: var(--border-radius); color: var(--text-muted-color); transition: all 0.2s ease; display: flex; justify-content: center; align-items: center; }
+        .nav-btn.active { color: var(--primary-color); background-color: var(--primary-light); }
 
     </style>
 </head>
@@ -307,6 +252,13 @@
                         <div class="label">Task Completion</div>
                     </div>
                 </div>
+
+                <!-- Reset Button Section -->
+                <div class="reset-section">
+                    <button id="reset-app-btn" class="reset-btn">
+                        <i class="fa-solid fa-trash-can"></i> Reset All Data
+                    </button>
+                </div>
             </div>
         </main>
         
@@ -351,6 +303,8 @@
             const statsLongestStreak = document.getElementById('stats-longest-streak');
             const statsTotalDays = document.getElementById('stats-total-days');
             const statsTaskCompletion = document.getElementById('stats-task-completion');
+
+            const resetAppBtn = document.getElementById('reset-app-btn');
 
             // --- State Management ---
             let appData = {
@@ -510,10 +464,7 @@
             function renderStatsView() {
                 const today = new Date();
                 const firstDay = new Date(appData.firstUseDate);
-                
-                // *** THIS IS THE CORRECTED LOGIC ***
                 const daysSinceFirstUse = Math.round((today - firstDay) / (1000 * 60 * 60 * 24)) + 1;
-
                 const totalPossibleTasks = daysSinceFirstUse * 3;
 
                 statsCurrentStreak.textContent = streakNumberEl.textContent;
@@ -523,6 +474,18 @@
                 const taskCompletionPercent = totalPossibleTasks > 0 ? ((appData.completedTasksEver || 0) / totalPossibleTasks * 100) : 0;
                 statsTaskCompletion.textContent = Math.round(taskCompletionPercent);
             }
+
+            // --- Reset App Data Function ---
+            function resetAppData() {
+                const isConfirmed = window.confirm(
+                    'Are you absolutely sure?\n\nThis will permanently delete all your tasks, streaks, and history.'
+                );
+
+                if (isConfirmed) {
+                    localStorage.removeItem('thriveApp');
+                    location.reload();
+                }
+            }
             
             // --- Event Listeners ---
             themeToggleBtn.addEventListener('click', () => { applyTheme(appData.theme === 'light' ? 'dark' : 'light'); });
@@ -531,6 +494,7 @@
             nav.stats.addEventListener('click', () => switchView('stats'));
             prevMonthBtn.addEventListener('click', () => { calendarDate.setMonth(calendarDate.getMonth() - 1); renderCalendar(); });
             nextMonthBtn.addEventListener('click', () => { calendarDate.setMonth(calendarDate.getMonth() + 1); renderCalendar(); });
+            resetAppBtn.addEventListener('click', resetAppData);
             
             // --- Initialisation ---
             function init() {
