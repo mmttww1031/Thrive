@@ -458,5 +458,88 @@
 
                     const checkbox = document.createElement('div');
                     checkbox.className = 'task-checkbox';
-                    if (task.completed) checkbox.innerHTML =                           
+                    if (task.completed) checkbox.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    
+                    checkbox.addEventListener('click', () => {
+                        const wasCompleted = appData.tasks[index].completed;
+                        appData.tasks[index].completed = !wasCompleted;
+                        if (!wasCompleted) appData.completedTasksEver++; else appData.completedTasksEver--;
+                        renderTodayView();
+                        checkAllTasksCompleted();
+                    });
+
+                    const inputContainer = document.createElement('div');
+                    inputContainer.style.position = 'relative'; inputContainer.style.width = '100%';
+                    const input = document.createElement('input');
+                    input.type = 'text'; input.className = 'task-input'; input.value = task.text; input.placeholder = `Priority #${index + 1}...`;
+                    input.addEventListener('input', (e) => { appData.tasks[index].text = e.target.value; saveData(); });
+
+                    inputContainer.appendChild(input);
+                    taskItem.appendChild(checkbox);
+                    taskItem.appendChild(inputContainer);
+                    taskListEl.appendChild(taskItem);
+                });
+                checkAllTasksCompleted();
+                displayDailyQuote();
+            }
             
+            function displayDailyQuote() {
+                const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+                quoteDisplayEl.textContent = `"${QUOTES[dayOfYear % QUOTES.length]}"`;
+            }
+
+            function renderCalendar() {
+                calendarBody.innerHTML = '';
+                const month = calendarDate.getMonth(); const year = calendarDate.getFullYear();
+                monthYearDisplay.textContent = `${calendarDate.toLocaleDateString(undefined, { month: 'long' })} ${year}`;
+                const firstDayOfMonth = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const todayStr = getTodayString();
+
+                for (let i = 0; i < firstDayOfMonth; i++) calendarBody.appendChild(document.createElement('div'));
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const dayEl = document.createElement('div');
+                    dayEl.className = 'calendar-day'; dayEl.textContent = i;
+                    const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                    if (appData.completedDays[dayStr]) dayEl.classList.add('completed');
+                    if (dayStr === todayStr) dayEl.classList.add('current-day');
+                    calendarBody.appendChild(dayEl);
+                }
+            }
+
+            function renderStatsView() {
+                const today = new Date();
+                const firstDay = new Date(appData.firstUseDate);
+                const daysSinceFirstUse = Math.max(1, Math.ceil((today - firstDay) / (1000 * 60 * 60 * 24)) + 1);
+                const totalPossibleTasks = daysSinceFirstUse * 3;
+
+                statsCurrentStreak.textContent = streakNumberEl.textContent;
+                statsLongestStreak.textContent = appData.longestStreak || 0;
+                statsTotalDays.textContent = Object.keys(appData.completedDays).length;
+                
+                const taskCompletionPercent = totalPossibleTasks > 0 ? ((appData.completedTasksEver || 0) / totalPossibleTasks * 100) : 0;
+                statsTaskCompletion.textContent = Math.round(taskCompletionPercent);
+            }
+            
+            // --- Event Listeners ---
+            themeToggleBtn.addEventListener('click', () => { applyTheme(appData.theme === 'light' ? 'dark' : 'light'); });
+            nav.today.addEventListener('click', () => switchView('today'));
+            nav.calendar.addEventListener('click', () => switchView('calendar'));
+            nav.stats.addEventListener('click', () => switchView('stats'));
+            prevMonthBtn.addEventListener('click', () => { calendarDate.setMonth(calendarDate.getMonth() - 1); renderCalendar(); });
+            nextMonthBtn.addEventListener('click', () => { calendarDate.setMonth(calendarDate.getMonth() + 1); renderCalendar(); });
+            
+            // --- Initialisation ---
+            function init() {
+                loadData();
+                applyTheme(appData.theme);
+                dailyReset();
+                updateStreak();
+                renderTodayView();
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>
