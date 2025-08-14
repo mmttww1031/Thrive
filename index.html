@@ -168,9 +168,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .task-checkbox {
-            width: 24px; height: 24px; border: 2px solid var(--border-color); border-radius: 50%; cursor: pointer; flex-shrink: 0; display: flex; justify-content: center; align-items: center; transition: all 0.2s ease;
-        }
+        .task-checkbox { width: 24px; height: 24px; border: 2px solid var(--border-color); border-radius: 50%; cursor: pointer; flex-shrink: 0; display: flex; justify-content: center; align-items: center; transition: all 0.2s ease; }
         .task-input { width: 100%; border: none; background: none; font-size: 1rem; font-family: 'Nunito', sans-serif; color: var(--text-color); transition: color 0.2s ease; }
         .task-input:focus { outline: none; }
         .task-input::placeholder { color: var(--text-muted-color); }
@@ -320,7 +318,7 @@
     </div>
 
     <script>
-       document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
             // --- DOM Elements ---
             const views = {
                 today: document.getElementById('today-view'),
@@ -460,5 +458,5 @@
 
                     const checkbox = document.createElement('div');
                     checkbox.className = 'task-checkbox';
-                    if (task.completed) 
+                    if (task.completed) checkbox.innerHTML =                           
             
